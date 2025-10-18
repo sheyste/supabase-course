@@ -10,22 +10,46 @@ export const Auth = () => {
     e.preventDefault();
 
     if (isSignUp) {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       });
-      if (signUpError) {
-        console.error("Error signing up:", signUpError.message);
+      if (error) {
+        console.error("Error signing up:", error.message);
         return;
       }
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (signInError) {
-        console.error("Error signing up:", signInError.message);
+
+      if (error) {
+        console.error("Error signing in:", error.message);
         return;
+      }
+
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", data.user.id)
+          .single();
+
+        if (!profile) {
+          const { error: createProfileError } = await supabase
+            .from("profiles")
+            .insert({
+              id: data.user.id,
+              username: data.user.email,
+            });
+          if (createProfileError) {
+            console.error(
+              "Error creating profile:",
+              createProfileError.message
+            );
+          }
+        }
       }
     }
   };

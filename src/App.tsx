@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { Auth } from "./components/auth";
-import TaskManager from "./components/task-manager";
+import { Home } from "./components/Home";
+import { Profile } from "./components/Profile";
+import { Header } from "./components/header";
 import { supabase } from "./supabase-client";
 
 function App() {
   const [session, setSession] = useState<any>(null);
 
   const fetchSession = async () => {
-    const currentSession = await supabase.auth.getSession();
-    console.log(currentSession);
-    setSession(currentSession.data.session);
+    const { data } = await supabase.auth.getSession();
+    setSession(data.session);
   };
 
   useEffect(() => {
@@ -27,22 +29,51 @@ function App() {
     };
   }, []);
 
-  const logout = async () => {
+  const handleLogout = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <>
-      {session ? (
-        <>
-          <button onClick={logout}> Log Out</button>
-          <TaskManager session={session} />
-        </>
-      ) : (
-        <Auth />
-      )}
-    </>
+    <BrowserRouter>
+      <div style={styles.appContainer}>
+        {session ? (
+          <>
+            <Header session={session} onLogout={handleLogout} />
+            <main style={styles.mainContent}>
+              <Routes>
+                <Route path="/" element={<Home session={session} />} />
+                <Route path="/profile" element={<Profile session={session} />} />
+              </Routes>
+            </main>
+          </>
+        ) : (
+          <div style={styles.authContainer}>
+            <Auth />
+          </div>
+        )}
+      </div>
+    </BrowserRouter>
   );
 }
+
+const styles = {
+  appContainer: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    height: '100vh',
+    backgroundColor: '#1a1a1a',
+  },
+  mainContent: {
+    flex: 1,
+    overflowY: 'auto' as const,
+    padding: '2rem',
+  },
+  authContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+  },
+};
 
 export default App;
