@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase-client';
 
 export interface Post {
@@ -15,7 +14,7 @@ export interface Post {
   }[];
 }
 
-export const Home = ({ session }: { session: Session }) => {
+export const Home = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 

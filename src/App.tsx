@@ -41,7 +41,7 @@ function App() {
             <Header session={session} onLogout={handleLogout} />
             <main style={styles.mainContent}>
               <Routes>
-                <Route path="/" element={<Home session={session} />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/profile" element={<Profile session={session} />} />
               </Routes>
             </main>
